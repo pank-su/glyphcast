@@ -42,7 +42,7 @@ compose.desktop {
             }
             linux {
                 // Linux specific options
-                targetFormats(TargetFormat.AppImage)
+                targetFormats(TargetFormat.Rpm)
             }
             packageVersion = "1.0.0"
         }
