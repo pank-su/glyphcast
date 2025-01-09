@@ -32,8 +32,18 @@ compose.desktop {
         mainClass = "MainKt"
 
         nativeDistributions {
-            targetFormats(TargetFormat.Dmg, TargetFormat.Msi, TargetFormat.AppImage)
-            packageName = "exhelp"
+            macOS {
+                // macOS specific options
+                targetFormats(TargetFormat.Dmg)
+            }
+            windows {
+                // Windows specific options
+                targetFormats(TargetFormat.Msi)
+            }
+            linux {
+                // Linux specific options
+                targetFormats(TargetFormat.AppImage)
+            }
             packageVersion = "1.0.0"
         }
     }
