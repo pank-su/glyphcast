@@ -32,18 +32,7 @@ compose.desktop {
         mainClass = "MainKt"
 
         nativeDistributions {
-            macOS {
-                // macOS specific options
-                targetFormats(TargetFormat.Dmg)
-            }
-            windows {
-                // Windows specific options
-                targetFormats(TargetFormat.Msi)
-            }
-            linux {
-                // Linux specific options
-                targetFormats(TargetFormat.Rpm)
-            }
+            targetFormats(TargetFormat.Dmg)
             packageVersion = "1.0.0"
         }
     }
