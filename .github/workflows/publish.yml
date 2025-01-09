@@ -15,7 +15,7 @@ jobs:
 
     strategy:
       matrix:
-        os: [ubuntu-latest, windows-latest]
+        os: [ubuntu-latest, macos-latest]
 
     steps:
       - name: Checkout code
@@ -29,11 +29,16 @@ jobs:
 
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v4
-      - name: Build application
+      - name: Build application (WIN, LINUX)
+        if: matrix.os != 'macos-latest'
         run: |
           gradle packageDistributionForCurrentOs
         shell: bash
-
+      - name: Build application (MacOS)
+        if: matrix.os == 'macos-latest'
+        run: |
+          gradle packageDmg
+        shell: bash
       - name: Create release artifact (Linux)
         if: matrix.os == 'ubuntu-latest'
         run: |
