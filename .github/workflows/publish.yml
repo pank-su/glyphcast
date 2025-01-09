@@ -57,7 +57,7 @@ jobs:
         if: matrix.os == 'macos-latest'
         run: |
           mkdir -p build/artifacts
-          cp app/build/compose/binaries/main/dmg/*.dmg build/artifacts/
+          cp app/build/compose/binaries/main/dmg/app-1.0.0.dmg build/artifacts/
         shell: bash
 
       - name: Upload release assets (Linux)
@@ -92,6 +92,6 @@ jobs:
         with:
           upload_url: ${{ github.event.release.upload_url }}
           asset_path: |
-            build/artifacts/*.dmg
+            build/artifacts/app-1.0.0.dmg
           asset_name: macos-installer.dmg
           asset_content_type: application/x-apple-diskimage
