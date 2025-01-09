@@ -1,5 +1,8 @@
 name: Publish Compose Multiplatform App
 
+permissions:
+  contents: write
+
 on:
   release:
     types:
@@ -56,7 +59,7 @@ jobs:
         if: matrix.os == 'ubuntu-latest'
         uses: actions/upload-release-asset@v1
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.SUPER_TOKEN }}
         with:
           upload_url: ${{ github.event.release.upload_url }}
           asset_path: |
@@ -68,7 +71,7 @@ jobs:
         if: matrix.os == 'windows-latest'
         uses: actions/upload-release-asset@v1
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.SUPER_TOKEN }}
         with:
           upload_url: ${{ github.event.release.upload_url }}
           asset_path: |
