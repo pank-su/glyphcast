@@ -45,7 +45,7 @@ jobs:
         if: matrix.os == 'windows-latest'
         run: |
           mkdir build\artifacts
-          copy app\build\compose\binaries\main\msi\*.msi build\artifacts\
+          copy app\build\compose\binaries\main\app\*.msi build\artifacts\
         shell: cmd
 
       - name: Create release artifact (macOS)
