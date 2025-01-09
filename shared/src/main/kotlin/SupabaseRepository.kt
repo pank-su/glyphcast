@@ -9,6 +9,11 @@ import kotlinx.coroutines.flow.map
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
+
+// Часть операций требуют другой ключ
+val supabaseKey = System.getenv("supabase_key")
+    ?: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdzaHhjdHNlY3p6anF0dWxwbnB1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzYzMzE5MzcsImV4cCI6MjA1MTkwNzkzN30.qs1Z_JKc8qAeWb30dgPsh5H2K1WioSPjNioWuOSpABg"
+
 object SupabaseRepository {
 
     suspend fun getOrCreateRoom(hash: String): String {
@@ -29,7 +34,18 @@ object SupabaseRepository {
 
     suspend fun connectToRoom(roomCode: String, userId: String): RealtimeChannel {
         supabaseClient.postgrest.rpc("connect_user_to_room", ConnectUserToRoomArgs(roomCode, userId))
-        return supabaseClient.channel(roomCode).apply { subscribe(true) }
+        return supabaseClient.channel(roomCode)
+    }
+
+    suspend fun getUserRoom(userId: String): RealtimeChannel? {
+        val roomCode = supabaseClient.postgrest.rpc("get_room_code_by_user", GetRoomByUserIdArgs(userId))
+            .runCatching { decodeAs<String>() }.getOrNull()
+        return if (roomCode != null) supabaseClient.channel(roomCode) else null
+
+    }
+
+    suspend fun disconnectUser(userId: String){
+        supabaseClient.postgrest.rpc("disconnect_user_from_room", GetRoomByUserIdArgs(userId))
     }
 
     @Serializable
@@ -46,10 +62,13 @@ object SupabaseRepository {
         @SerialName("room_code_") val roomCode: String,
     )
 
+    @Serializable
+    private data class GetRoomByUserIdArgs(@SerialName("user_id_") val userId: String)
+
 
     private val supabaseClient = createSupabaseClient(
         "https://gshxctseczzjqtulpnpu.supabase.co",
-        "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdzaHhjdHNlY3p6anF0dWxwbnB1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzYzMzE5MzcsImV4cCI6MjA1MTkwNzkzN30.qs1Z_JKc8qAeWb30dgPsh5H2K1WioSPjNioWuOSpABg"
+        supabaseKey
     ) {
         install(Postgrest)
         install(Realtime)

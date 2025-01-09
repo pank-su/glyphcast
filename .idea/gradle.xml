@@ -11,6 +11,7 @@
             <option value="$PROJECT_DIR$/app" />
             <option value="$PROJECT_DIR$/shared" />
             <option value="$PROJECT_DIR$/tgbot" />
+            <option value="$PROJECT_DIR$/webgui" />
           </set>
         </option>
       </GradleProjectSettings>

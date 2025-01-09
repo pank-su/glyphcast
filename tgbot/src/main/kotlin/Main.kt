@@ -1,10 +1,12 @@
 import dev.inmo.tgbotapi.bot.ktor.telegramBot
 import dev.inmo.tgbotapi.extensions.api.bot.getMe
+import dev.inmo.tgbotapi.extensions.api.bot.getMyCommands
 import dev.inmo.tgbotapi.extensions.api.send.reply
 import dev.inmo.tgbotapi.extensions.behaviour_builder.buildBehaviourWithLongPolling
 import dev.inmo.tgbotapi.extensions.behaviour_builder.expectations.waitText
 import dev.inmo.tgbotapi.extensions.behaviour_builder.triggers_handling.onCommand
 import dev.inmo.tgbotapi.extensions.behaviour_builder.triggers_handling.onText
+import dev.inmo.tgbotapi.extensions.utils.extensions.raw.text
 import dev.inmo.tgbotapi.requests.send.SendTextMessage
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.last
@@ -27,7 +29,7 @@ suspend fun main() {
                 it,
                 """Привет это бот для отображения текста на экране. 
                     |Для того чтобы отобразить опр. текст на твоём экране, необходимо ввести код из приложения. 
-                    |Приложение, можно скачать здесь""".trimMargin()
+                    """.trimMargin()
             )
         }
 
@@ -52,19 +54,34 @@ suspend fun main() {
             if (code == "/cancel"){
                 return@onCommand
             }
-            val channel = supabaseRepository.connectToRoom(code, it.chat.id.chatId.long.toString())
+            supabaseRepository.connectToRoom(code, it.chat.id.chatId.long.toString())
 
-            waitText(SendTextMessage(
-                it.chat.id,
-                "Подключение прошло успешно, теперь вы можете отправлять текст на экран"
-            )).collect{
-                channel.sendMessage(it.text)
-            }
+            reply(
+                it,
+                "Подключение прошло успешно, теперь вы можете отправлять текст на экран. Для отключения введите команду /disconnect или /connect для подключения по другому коду"
+            )
 
         }
 
+        onCommand("disconnect"){
+            val channel = supabaseRepository.getUserRoom(it.chat.id.chatId.long.toString())
+            if (channel == null){
+                reply(it, "Вы и так не подключены. Для подключения используйте команду /connect")
+                return@onCommand
+            }
+            supabaseRepository.disconnectUser(it.chat.id.chatId.long.toString())
+            reply(it, "Вы отключены от комнаты.")
+        }
+
+
         onText {
 
+            val channel = supabaseRepository.getUserRoom(it.chat.id.chatId.long.toString())
+            if (channel == null){
+                reply(it, "Вы не подключены. Для подключения используйте команду /connect")
+                return@onText
+            }
+            channel.sendMessage(it.content.text)
         }
 
     }.join()
