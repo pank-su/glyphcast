@@ -8,6 +8,9 @@ import dev.inmo.tgbotapi.extensions.behaviour_builder.buildBehaviourWithLongPoll
 import dev.inmo.tgbotapi.extensions.behaviour_builder.expectations.waitText
 import dev.inmo.tgbotapi.extensions.behaviour_builder.triggers_handling.onCommand
 import dev.inmo.tgbotapi.extensions.behaviour_builder.triggers_handling.onText
+import dev.inmo.tgbotapi.extensions.behaviour_builder.triggers_handling.onTextedContent
+import dev.inmo.tgbotapi.extensions.utils.extensions.raw.text
+import dev.inmo.tgbotapi.extensions.utils.updates.hasNoCommands
 import dev.inmo.tgbotapi.requests.send.SendTextMessage
 import dev.inmo.tgbotapi.types.message.content.TextMessage
 import io.github.jan.supabase.realtime.RealtimeChannel
@@ -15,6 +18,8 @@ import kotlinx.coroutines.flow.first
 import su.pank.exhelp.*
 
 val TOKEN = System.getenv("token")
+
+val waitedTextUsers = mutableSetOf<String>()
 
 
 object Messages{
@@ -40,6 +45,7 @@ suspend fun main() {
         }
 
         onCommand("connect") {
+            waitedTextUsers.add(it.chat.id.chatId.long.toString())
             val code = waitText(
                 SendTextMessage(
                     it.chat.id,
@@ -57,6 +63,8 @@ suspend fun main() {
                     return@first true
                 }
             }.text
+            waitedTextUsers.remove(it.chat.id.chatId.long.toString())
+
             if (code == "/cancel"){
                 return@onCommand
             }
@@ -87,7 +95,6 @@ suspend fun main() {
         onCommand("hide"){
             val channel = checkConnectionAndGetChannel(supabaseRepository, it) ?:  return@onCommand
 
-
             channel.setVisibility(false)
         }
 
@@ -98,7 +105,7 @@ suspend fun main() {
         }
 
 
-        onText {
+        onText(initialFilter = {it.hasNoCommands() && !waitedTextUsers.contains(it.chat.id.chatId.long.toString())}) {
             val channel = checkConnectionAndGetChannel(supabaseRepository, it) ?:  return@onText
             channel.sendMessage(it.content.text)
         }
