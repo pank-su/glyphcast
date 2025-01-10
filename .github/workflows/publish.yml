@@ -80,7 +80,7 @@ jobs:
         with:
           upload_url: ${{ github.event.release.upload_url }}
           asset_path: |
-            build/artifacts/app-1.0.0.dmg
+            build/artifacts/app-1.0.0.msi
           asset_name: windows-installer.msi
           asset_content_type: application/x-msi
 
