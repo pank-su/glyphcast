@@ -2,6 +2,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.window.WindowDraggableArea
 import androidx.compose.material.Surface
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ContentCopy
@@ -35,14 +36,16 @@ fun main() = application {
         val viewModel: MainViewModel = viewModel()
         val state by viewModel.state.collectAsStateWithLifecycle(MainState.Loading)
 
-        when (state) {
-            MainState.Loading -> LoadingScreen()
+        WindowDraggableArea {
+            when (state) {
+                MainState.Loading -> LoadingScreen()
 
-            is MainState.ShowContent -> {
-                ShowContent((state as MainState.ShowContent).text)
+                is MainState.ShowContent -> {
+                    ShowContent((state as MainState.ShowContent).text)
+                }
+
+                is MainState.WaitText -> CodeScreen((state as MainState.WaitText).roomCode)
             }
-
-            is MainState.WaitText -> CodeScreen((state as MainState.WaitText).roomCode)
         }
 
     }
