@@ -1,6 +1,9 @@
 package su.pank.exhelp.app
 
 
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.sun.tools.javac.Main
@@ -20,6 +23,8 @@ class MainViewModel(
     private val hashRepository: HashRepository = HashRepository,
     private val supabaseRepository: SupabaseRepository = SupabaseRepository
 ) : ViewModel() {
+
+    var isMovable: Boolean by mutableStateOf(false)
 
     val state = flow<MainState> {
         val hash = hashRepository.hash

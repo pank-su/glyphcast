@@ -8,7 +8,6 @@ import io.github.jan.supabase.postgrest.rpc
 import io.github.jan.supabase.realtime.*
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.map
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
@@ -26,8 +25,8 @@ object SupabaseRepository {
     suspend fun listenRoom(roomCode: String): Flow<RoomData> {
         val channel = supabaseClient.realtime.channel(roomCode)
         channel.subscribe(true)
-        return channel.broadcastFlow<Message>("message").combine(channel.broadcastFlow<Boolean>("visible")){ mes: Message, vis: Boolean ->
-            RoomData(mes.text, vis)
+        return channel.broadcastFlow<Message>("message").combine(channel.broadcastFlow<Visibility>("visible")){ mes: Message, vis: Visibility ->
+            RoomData(mes.text, vis.visible)
         }
     }
 
@@ -90,10 +89,13 @@ object SupabaseRepository {
 @Serializable
 data class Message(val text: String)
 
+@Serializable
+data class Visibility(val visible: Boolean)
+
 suspend fun RealtimeChannel.sendMessage(text: String) {
     broadcast("message", Message(text))
 }
 
 suspend fun RealtimeChannel.setVisibility(value: Boolean){
-    broadcast("visible", value)
+    broadcast("visible", Visibility(value))
 }

@@ -76,8 +76,6 @@ suspend fun main() {
             }
 
 
-
-
             reply(
                 it,
                 "Подключение прошло успешно, теперь вы можете отправлять текст на экран. Для отключения введите команду /disconnect или /connect для подключения по другому коду"
@@ -108,6 +106,7 @@ suspend fun main() {
         onText(initialFilter = {it.hasNoCommands() && !waitedTextUsers.contains(it.chat.id.chatId.long.toString())}) {
             val channel = checkConnectionAndGetChannel(supabaseRepository, it) ?:  return@onText
             channel.sendMessage(it.content.text)
+            channel.setVisibility(true)
         }
 
     }.join()
