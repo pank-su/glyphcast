@@ -1,7 +1,9 @@
+package su.pank.exhelp.tgbot
+
 import dev.inmo.tgbotapi.bot.ktor.telegramBot
 import dev.inmo.tgbotapi.extensions.api.bot.getMe
-import dev.inmo.tgbotapi.extensions.api.bot.getMyCommands
 import dev.inmo.tgbotapi.extensions.api.send.reply
+import dev.inmo.tgbotapi.extensions.behaviour_builder.BehaviourContext
 import dev.inmo.tgbotapi.extensions.behaviour_builder.buildBehaviourWithLongPolling
 import dev.inmo.tgbotapi.extensions.behaviour_builder.expectations.waitText
 import dev.inmo.tgbotapi.extensions.behaviour_builder.triggers_handling.onCommand
@@ -10,14 +12,19 @@ import dev.inmo.tgbotapi.extensions.behaviour_builder.triggers_handling.onTexted
 import dev.inmo.tgbotapi.extensions.utils.extensions.raw.text
 import dev.inmo.tgbotapi.extensions.utils.updates.hasNoCommands
 import dev.inmo.tgbotapi.requests.send.SendTextMessage
+import dev.inmo.tgbotapi.types.message.content.TextMessage
+import io.github.jan.supabase.realtime.RealtimeChannel
 import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.last
-import kotlinx.coroutines.flow.takeWhile
+import su.pank.exhelp.*
 
 val TOKEN = System.getenv("token")
 
 val waitedTextUsers = mutableSetOf<String>()
 
+
+object Messages{
+    val notConnectedMessage = "Вы не подключены. Для подключения используйте команду /connect"
+}
 
 
 suspend fun main() {
@@ -61,7 +68,15 @@ suspend fun main() {
             if (code == "/cancel"){
                 return@onCommand
             }
-            supabaseRepository.connectToRoom(code, it.chat.id.chatId.long.toString())
+            val channel = supabaseRepository.connectToRoom(code, it.chat.id.chatId.long.toString())
+            kotlin.runCatching {
+                channel.setVisibility(true)
+            }.onFailure {
+                it.printStackTrace()
+            }
+
+
+
 
             reply(
                 it,
@@ -71,25 +86,40 @@ suspend fun main() {
         }
 
         onCommand("disconnect"){
-            val channel = supabaseRepository.getUserRoom(it.chat.id.chatId.long.toString())
-            if (channel == null){
-                reply(it, "Вы и так не подключены. Для подключения используйте команду /connect")
-                return@onCommand
-            }
+            checkConnectionAndGetChannel(supabaseRepository, it) ?:  return@onCommand
+
             supabaseRepository.disconnectUser(it.chat.id.chatId.long.toString())
             reply(it, "Вы отключены от комнаты.")
         }
 
+        onCommand("hide"){
+            val channel = checkConnectionAndGetChannel(supabaseRepository, it) ?:  return@onCommand
+
+            channel.setVisibility(false)
+        }
+
+        onCommand("show"){
+            val channel = checkConnectionAndGetChannel(supabaseRepository, it) ?:  return@onCommand
+
+            channel.setVisibility(true)
+        }
+
 
         onText(initialFilter = {it.hasNoCommands() && !waitedTextUsers.contains(it.chat.id.chatId.long.toString())}) {
-
-            val channel = supabaseRepository.getUserRoom(it.chat.id.chatId.long.toString())
-            if (channel == null){
-                reply(it, "Вы не подключены. Для подключения используйте команду /connect")
-                return@onText
-            }
+            val channel = checkConnectionAndGetChannel(supabaseRepository, it) ?:  return@onText
             channel.sendMessage(it.content.text)
         }
 
     }.join()
+}
+
+private suspend fun BehaviourContext.checkConnectionAndGetChannel(
+    supabaseRepository: SupabaseRepository,
+    message: TextMessage
+): RealtimeChannel? {
+    val channel = supabaseRepository.getUserRoom(message.chat.id.chatId.long.toString())
+    if (channel == null) {
+        reply(message, Messages.notConnectedMessage)
+    }
+    return channel
 }
