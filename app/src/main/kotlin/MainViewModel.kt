@@ -12,7 +12,7 @@ import su.pank.exhelp.SupabaseRepository
 sealed interface MainState{
     object Loading: MainState
     data class WaitText(val roomCode: String): MainState
-    data class ShowContent(val text: String): MainState
+    data class ShowContent(val text: String, val visible: Boolean): MainState
 }
 
 
@@ -27,7 +27,7 @@ class MainViewModel(
         emit(MainState.WaitText(code))
 
         supabaseRepository.listenRoom(code).collect{
-            emit(MainState.ShowContent(it))
+            emit(MainState.ShowContent(it.message, visible = it.visible))
         }
     }.shareIn(viewModelScope, SharingStarted.Lazily, 1)
 

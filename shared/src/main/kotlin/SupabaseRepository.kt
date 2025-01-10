@@ -7,6 +7,7 @@ import io.github.jan.supabase.postgrest.postgrest
 import io.github.jan.supabase.postgrest.rpc
 import io.github.jan.supabase.realtime.*
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
@@ -22,10 +23,12 @@ object SupabaseRepository {
         return supabaseClient.postgrest.rpc("get_or_create_room", CreateRoomArgs(hash)).data.replace("\"", "")
     }
 
-    suspend fun listenRoom(roomCode: String): Flow<String> {
+    suspend fun listenRoom(roomCode: String): Flow<RoomData> {
         val channel = supabaseClient.realtime.channel(roomCode)
         channel.subscribe(true)
-        return channel.broadcastFlow<Message>("message").map { it.text }
+        return channel.broadcastFlow<Message>("message").combine(channel.broadcastFlow<Boolean>("visible")){ mes: Message, vis: Boolean ->
+            RoomData(mes.text, vis)
+        }
     }
 
     suspend fun checkRoomExists(roomCode: String): Boolean {
@@ -67,6 +70,9 @@ object SupabaseRepository {
     @Serializable
     private data class GetRoomByUserIdArgs(@SerialName("user_id_") val userId: String)
 
+    @Serializable
+    data class RoomData(val message: String, val visible: Boolean)
+
 
     private val supabaseClient = createSupabaseClient(
         "https://gshxctseczzjqtulpnpu.supabase.co",
@@ -86,4 +92,8 @@ data class Message(val text: String)
 
 suspend fun RealtimeChannel.sendMessage(text: String) {
     broadcast("message", Message(text))
+}
+
+suspend fun RealtimeChannel.setVisibility(value: Boolean){
+    broadcast("visible", value)
 }

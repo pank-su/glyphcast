@@ -1,4 +1,4 @@
-package data
+package su.pank.exhelp.app.data
 
 import com.russhwolf.settings.Settings
 import org.kotlincrypto.hash.sha2.SHA512
