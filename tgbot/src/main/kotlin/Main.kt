@@ -1,3 +1,5 @@
+package su.pank.exhelp.tgbot
+
 import dev.inmo.tgbotapi.bot.ktor.telegramBot
 import dev.inmo.tgbotapi.extensions.api.bot.getMe
 import dev.inmo.tgbotapi.extensions.api.bot.getMyCommands
@@ -9,8 +11,7 @@ import dev.inmo.tgbotapi.extensions.behaviour_builder.triggers_handling.onText
 import dev.inmo.tgbotapi.extensions.utils.extensions.raw.text
 import dev.inmo.tgbotapi.requests.send.SendTextMessage
 import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.last
-import kotlinx.coroutines.flow.takeWhile
+import su.pank.exhelp.*
 
 val TOKEN = System.getenv("token")
 

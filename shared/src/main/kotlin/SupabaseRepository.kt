@@ -1,3 +1,5 @@
+package su.pank.exhelp
+
 import io.github.jan.supabase.createSupabaseClient
 import io.github.jan.supabase.logging.LogLevel
 import io.github.jan.supabase.postgrest.Postgrest

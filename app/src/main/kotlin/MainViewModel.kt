@@ -1,9 +1,13 @@
+package su.pank.exhelp.app
+
+
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.sun.tools.javac.Main
-import data.HashRepository
+import su.pank.exhelp.app.data.HashRepository
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
+import su.pank.exhelp.SupabaseRepository
 
 sealed interface MainState{
     object Loading: MainState

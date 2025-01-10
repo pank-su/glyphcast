@@ -1,6 +1,8 @@
 
 plugins {
     kotlin("jvm")
+    id("application")
+
 }
 
 dependencies{
@@ -10,4 +12,8 @@ dependencies{
     implementation(projects.shared)
     implementation("io.github.jan-tennert.supabase:realtime-kt")
 
+}
+
+application{
+    mainClass = "su.pank.exhelp.tgbot.MainKt"
 }
