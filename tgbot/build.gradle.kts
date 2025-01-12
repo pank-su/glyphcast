@@ -1,8 +1,9 @@
+import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
 
 plugins {
     kotlin("jvm")
     id("application")
-
+    id("com.gradleup.shadow")
 }
 
 dependencies{
@@ -16,4 +17,14 @@ dependencies{
 
 application{
     mainClass = "su.pank.exhelp.tgbot.MainKt"
+}
+
+tasks.withType<ShadowJar> {
+    archiveClassifier.set("") // Убираем стандартный "-all" из имени файла
+    mergeServiceFiles() // Если есть сервисные файлы, они будут корректно объединены
+    manifest {
+        attributes(mapOf(
+            "Main-Class" to application.mainClass.get()
+        ))
+    }
 }

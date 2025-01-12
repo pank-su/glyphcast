@@ -13,6 +13,7 @@ pluginManagement {
         id("org.jetbrains.compose").version(extra["compose.version"] as String)
         id("org.jetbrains.kotlin.plugin.compose").version(extra["kotlin.version"] as String)
         kotlin("plugin.serialization").version(extra["kotlin.version"] as String)
+        id("com.gradleup.shadow").version("9.0.0-beta4")
     }
 }
 
