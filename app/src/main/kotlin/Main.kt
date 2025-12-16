@@ -28,10 +28,8 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 
 
+
 fun main() {
-    System.setProperty("skiko.renderApi", "OPENGL")
-
-
     return application {
         val windowState = rememberWindowState(size = DpSize(300.dp, 50.dp))
 

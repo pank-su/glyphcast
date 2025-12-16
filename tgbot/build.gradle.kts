@@ -7,7 +7,7 @@ plugins {
 }
 
 dependencies{
-    implementation(platform("io.github.jan-tennert.supabase:bom:3.0.3"))
+    implementation(platform("io.github.jan-tennert.supabase:bom:3.2.6"))
 
     implementation("dev.inmo:tgbotapi:23.1.0")
     implementation(projects.shared)

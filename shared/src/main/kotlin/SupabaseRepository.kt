@@ -14,7 +14,7 @@ import kotlinx.serialization.Serializable
 
 // Часть операций требуют другой ключ
 val supabaseKey = System.getenv("supabase_key")
-    ?: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdzaHhjdHNlY3p6anF0dWxwbnB1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzYzMzE5MzcsImV4cCI6MjA1MTkwNzkzN30.qs1Z_JKc8qAeWb30dgPsh5H2K1WioSPjNioWuOSpABg"
+    ?: "sb_publishable_GpnTq01Zlfba5-ATIwRNqA_tPdY4TFE"
 
 object SupabaseRepository {
 
@@ -74,7 +74,7 @@ object SupabaseRepository {
 
 
     private val supabaseClient = createSupabaseClient(
-        "https://gshxctseczzjqtulpnpu.supabase.co",
+        "https://xxpvxircmvxuaxrhlzbr.supabase.co",
         supabaseKey
     ) {
         install(Postgrest)

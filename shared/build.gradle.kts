@@ -5,7 +5,7 @@ plugins {
 }
 
 dependencies{
-    implementation(platform("io.github.jan-tennert.supabase:bom:3.0.3"))
+    implementation(platform("io.github.jan-tennert.supabase:bom:3.2.6"))
     implementation("io.github.jan-tennert.supabase:postgrest-kt")
     implementation("io.github.jan-tennert.supabase:realtime-kt")
 
