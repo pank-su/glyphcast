@@ -5,7 +5,7 @@ WORKDIR /home/gradle/src
 RUN ./gradlew :tgbot:shadowJar --no-daemon
 
 # Stage 2: Run
-FROM openjdk:17-slim
+FROM eclipse-temurin:17-jre-alpine
 RUN mkdir /app
 COPY --from=build /home/gradle/src/tgbot/build/libs/*.jar /app/tgbot.jar
 WORKDIR /app
