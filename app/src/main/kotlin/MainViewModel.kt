@@ -6,15 +6,13 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.sun.tools.javac.Main
 import su.pank.exhelp.app.data.HashRepository
 import kotlinx.coroutines.flow.*
-import kotlinx.coroutines.launch
 import su.pank.exhelp.SupabaseRepository
 
 sealed interface MainState{
     object Loading: MainState
-    data class WaitText(val roomCode: String): MainState
+    data class WaitUser(val roomCode: String): MainState
     data class ShowContent(val text: String, val visible: Boolean): MainState
 }
 
@@ -29,7 +27,7 @@ class MainViewModel(
     val state = flow<MainState> {
         val hash = hashRepository.hash
         val code = supabaseRepository.getOrCreateRoom(hash)
-        emit(MainState.WaitText(code))
+        emit(MainState.WaitUser(code))
 
         supabaseRepository.listenRoom(code).collect{
             emit(MainState.ShowContent(it.message, visible = it.visible))
