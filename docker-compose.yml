@@ -1,0 +1,8 @@
+services:
+  tgbot:
+    build: .
+    container_name: glyphcast-tgbot
+    restart: always
+    environment:
+      - token=${TELEGRAM_TOKEN}
+      - supabase_key=${SUPABASE_KEY}
