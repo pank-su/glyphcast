@@ -25,6 +25,10 @@ dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-swing:1.10.1")
 
     implementation(compose.material3)
+    
+    // Koog for Gemini integration
+    implementation("ai.koog:koog-agents:0.6.0")
+    implementation("org.jetbrains.kotlinx:kotlinx-datetime:0.7.1-0.6.x-compat")
 }
 
 compose.desktop {

@@ -11,11 +11,9 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.window.WindowDraggableArea
-import androidx.compose.material.OutlinedTextField
-import androidx.compose.material.Surface
-import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ContentCopy
 import androidx.compose.material3.*
@@ -41,7 +39,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 fun main() {
     return application {
         // TODO: change size on connect
-        val windowState = rememberWindowState(size = DpSize(300.dp, 170.dp))
+        val windowState = rememberWindowState(size = DpSize(350.dp, 300.dp))
 
 
         Window(
@@ -64,18 +62,29 @@ fun main() {
                     when (state) {
                         MainState.Loading -> LoadingScreen()
 
-                        is MainState.ShowContent -> {
-                            val content = (state as MainState.ShowContent)
+                        is MainState.ShowSupabaseContent -> {
+                            val content = (state as MainState.ShowSupabaseContent)
                             LaunchedEffect(state) {
                                 if (content.visible) {
-                                    windowState.size = DpSize(300.dp, 50.dp)
+                                    windowState.size = DpSize(200.dp, 120.dp)
                                 } else {
                                     windowState.size = DpSize.Zero
                                 }
                             }
                             ShowContent(content.text)
                         }
-                        is MainState.WaitUser -> WaitScreen((state as MainState.WaitUser).roomCode)
+                        
+                        is MainState.ShowGeminiContent -> {
+                            val content = (state as MainState.ShowGeminiContent)
+                            LaunchedEffect(state) {
+                                windowState.size = DpSize(300.dp, 120.dp)
+                            }
+                            ShowContent(content.text) {
+                                viewModel.stopGeminiSession()
+                            }
+                        }
+                        
+                        is MainState.WaitUser -> WaitScreen((state as MainState.WaitUser), viewModel)
                     }
                 }
             }
@@ -96,43 +105,84 @@ fun LoadingScreen() {
 
 // TODO: add viewmodel
 @Composable
-fun WaitScreen(code: String) {
+fun WaitScreen(waitState: MainState.WaitUser, viewModel: MainViewModel) {
     val clipboardManager = LocalClipboardManager.current
     val uriHandler = LocalUriHandler.current
 
     Surface(modifier = Modifier.fillMaxSize(), shape = RoundedCornerShape(12.dp)) {
-        Column {
+        Column(
+            modifier = Modifier.fillMaxWidth().padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
             Text("Подключить друга:")
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.Center
             ) {
-                Text(code, style = MaterialTheme.typography.headlineLarge)
+                Text(waitState.roomCode, style = MaterialTheme.typography.headlineLarge)
                 IconButton({
-                    clipboardManager.setText(buildAnnotatedString { append(code) })
+                    clipboardManager.setText(buildAnnotatedString { append(waitState.roomCode) })
                 }) {
                     Icon(Icons.Default.ContentCopy, null)
                 }
             }
-            Text("@glyphcastbot", color = MaterialTheme.colorScheme.primary, modifier = Modifier.clickable{
-                uriHandler.openUri("https://t.me/glyphcastbot")
-            }.align(Alignment.CenterHorizontally))
-            Spacer(Modifier.height(5.dp))
-            Text("Использовать Gemini 3 Flash:")
-            OutlinedTextField("", {}, placeholder = {
-                Text("Openrouter")
-            })
-
-
-
+            Text(
+                "@glyphcastbot", 
+                color = MaterialTheme.colorScheme.primary, 
+                modifier = Modifier.clickable{
+                    uriHandler.openUri("https://t.me/glyphcastbot")
+                }.align(Alignment.CenterHorizontally)
+            )
+            
+            Spacer(Modifier.height(8.dp))
+            
+            Text("API ключ Gemini Flash:")
+            OutlinedTextField(
+                value = viewModel.geminiApiKey,
+                onValueChange = { viewModel.updateGeminiApiKey(it) }, 
+                placeholder = {
+                    Text("Введите API ключ")
+                },
+                modifier = Modifier.fillMaxWidth(),
+                singleLine = true
+            )
+            
+            Spacer(Modifier.height(8.dp))
+            
+            if (waitState.hasGeminiKey) {
+                Button(
+                    onClick = { viewModel.startGeminiSession() },
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Text("Запустить сессию с Gemini")
+                }
+            } else {
+                Text(
+                    "Введите API ключ для запуска сессии с Gemini",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.align(Alignment.CenterHorizontally)
+                )
+            }
         }
     }
 }
 
 @Composable
-fun ShowContent(text: String) {
-    Box(modifier = Modifier.fillMaxSize().background(Color.Transparent)) {
-        Text(text, Modifier.align(Alignment.Center))
+fun ShowContent(text: String, onStop: (() -> Unit)? = null) {
+    Box(modifier = Modifier.fillMaxSize().background(Color.White.copy(alpha = 0.5f))) {
+        Column(
+            modifier = Modifier.align(Alignment.Center).padding(16.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            Text(text, style = MaterialTheme.typography.bodyMedium)
+            onStop?.let {
+                Button(onClick = it) {
+                    Text("Остановить")
+                }
+            }
+        }
     }
 }

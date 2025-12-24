@@ -32,4 +32,3 @@ include(":app")
 include(":tgbot")
 
 include(":shared")
-include("webgui")
